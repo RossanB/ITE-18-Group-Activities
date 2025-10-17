@@ -1,6 +1,7 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import GUI from 'lil-gui'
 
 const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
@@ -479,12 +480,450 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+// Debug UI Setup
+const gui = new GUI()
+gui.title('Three.js Debug Panel')
+
+// Toggle button functionality
+const debugToggle = document.getElementById('debugToggle')
+let guiVisible = true
+
+debugToggle.addEventListener('click', () => {
+    guiVisible = !guiVisible
+    if (guiVisible) {
+        gui.show()
+        debugToggle.textContent = '🔧 Debug'
+    } else {
+        gui.hide()
+        debugToggle.textContent = '👁️ Show'
+    }
+})
+
+// Debug parameters object
+const debugParams = {
+    // General
+    animationSpeed: 1.0,
+    showWireframes: false,
+    
+    // Diamond Group
+    diamondRotationSpeed: 0.2,
+    diamondGlowIntensity: 0.8,
+    diamondTransmission: 0.8,
+    diamondOpacity: 0.9,
+    diamondMetalness: 0.1,
+    diamondRoughness: 0.0,
+    diamondIOR: 2.4,
+    diamondClearcoat: 1.0,
+    diamondClearcoatRoughness: 0.0,
+    diamondEnvMapIntensity: 3.0,
+    diamondEmissiveIntensity: 0.8,
+    diamondColor: '#00ffff',
+    facetCount: 8,
+    facetSize: 0.3,
+    facetRadius: 3.5,
+    
+    // Bubble Group
+    bubbleCount: 8,
+    bubbleTransmission: 0.8,
+    bubbleOpacity: 0.6,
+    bubbleIOR: 1.33,
+    bubbleFloatSpeed: 1.0,
+    
+    // Particle Systems
+    confettiCount: 50,
+    confettiSize: 0.1,
+    confettiOpacity: 0.8,
+    explosionCount: 80,
+    explosionSize: 0.1,
+    explosionOpacity: 0.8,
+    
+    // Wire Objects
+    wireOpacity: 0.8,
+    wireFloatSpeed: 1.0,
+    wireRotationSpeed: 1.0,
+    
+    // Energy Orbs
+    energyOrbCount: 4,
+    energyOrbSize: 0.2,
+    energyOrbOpacity: 0.7,
+    energyOrbSpeed: 1.0,
+    
+    // Lasers
+    laserCount: 3,
+    laserOpacity: 0.6,
+    laserRotationSpeed: 1.0,
+    
+    // Crystals
+    crystalCount: 6,
+    crystalSize: 0.15,
+    crystalOpacity: 0.8,
+    crystalTransmission: 0.6,
+    crystalMetalness: 0.3,
+    crystalRoughness: 0.1,
+    
+    // Lights
+    ambientLightIntensity: 0.4,
+    directionalLightIntensity: 1.0,
+    pointLight1Intensity: 1.5,
+    pointLight2Intensity: 1.5,
+    pointLight3Intensity: 1.0,
+    diamondLight1Intensity: 2.0,
+    diamondLight2Intensity: 1.5,
+    
+    // Camera
+    cameraPositionX: 0,
+    cameraPositionY: 0,
+    cameraPositionZ: 6,
+    cameraFOV: 75,
+    
+    // Renderer
+    pixelRatio: 2,
+    antialias: true,
+    
+    // Groups visibility
+    showDiamondGroup: true,
+    showBubbleGroup: true,
+    showConfettiGroup: true,
+    showWireGroup: true,
+    showExplosionGroup: true,
+    showEnergyGroup: true,
+    showLaserGroup: true,
+    showTrailGroup: true,
+    showCrystalGroup: true,
+    
+    // Performance
+    showFPS: false,
+    showStats: false
+}
+
+// General Controls
+const generalFolder = gui.addFolder('General')
+generalFolder.add(debugParams, 'animationSpeed', 0, 3).onChange((value) => {
+    // This will be used in the animation loop
+})
+generalFolder.add(debugParams, 'showWireframes').onChange((value) => {
+    scene.traverse((child) => {
+        if (child.isMesh && child.material.wireframe !== undefined) {
+            child.material.wireframe = value
+        }
+    })
+})
+
+// Diamond Group Controls
+const diamondFolder = gui.addFolder('Diamond Group')
+diamondFolder.add(debugParams, 'showDiamondGroup').onChange((value) => {
+    diamondGroup.visible = value
+})
+diamondFolder.add(debugParams, 'diamondRotationSpeed', 0, 2)
+diamondFolder.add(debugParams, 'diamondGlowIntensity', 0, 2).onChange((value) => {
+    mainDiamond.material.emissiveIntensity = value
+})
+diamondFolder.add(debugParams, 'diamondTransmission', 0, 1).onChange((value) => {
+    mainDiamond.material.transmission = value
+})
+diamondFolder.add(debugParams, 'diamondOpacity', 0, 1).onChange((value) => {
+    mainDiamond.material.opacity = value
+})
+diamondFolder.add(debugParams, 'diamondMetalness', 0, 1).onChange((value) => {
+    mainDiamond.material.metalness = value
+})
+diamondFolder.add(debugParams, 'diamondRoughness', 0, 1).onChange((value) => {
+    mainDiamond.material.roughness = value
+})
+diamondFolder.add(debugParams, 'diamondIOR', 1, 3).onChange((value) => {
+    mainDiamond.material.ior = value
+})
+diamondFolder.add(debugParams, 'diamondClearcoat', 0, 1).onChange((value) => {
+    mainDiamond.material.clearcoat = value
+})
+diamondFolder.add(debugParams, 'diamondClearcoatRoughness', 0, 1).onChange((value) => {
+    mainDiamond.material.clearcoatRoughness = value
+})
+diamondFolder.add(debugParams, 'diamondEnvMapIntensity', 0, 5).onChange((value) => {
+    mainDiamond.material.envMapIntensity = value
+})
+diamondFolder.add(debugParams, 'diamondEmissiveIntensity', 0, 2).onChange((value) => {
+    mainDiamond.material.emissiveIntensity = value
+})
+diamondFolder.addColor(debugParams, 'diamondColor').onChange((value) => {
+    mainDiamond.material.color.setHex(value.replace('#', '0x'))
+    mainDiamond.material.emissive.setHex(value.replace('#', '0x'))
+})
+
+// Bubble Group Controls
+const bubbleFolder = gui.addFolder('Bubble Group')
+bubbleFolder.add(debugParams, 'showBubbleGroup').onChange((value) => {
+    bubbleGroup.visible = value
+})
+bubbleFolder.add(debugParams, 'bubbleTransmission', 0, 1).onChange((value) => {
+    bubbleGroup.children.forEach(bubble => {
+        bubble.material.transmission = value
+    })
+})
+bubbleFolder.add(debugParams, 'bubbleOpacity', 0, 1).onChange((value) => {
+    bubbleGroup.children.forEach(bubble => {
+        bubble.material.opacity = value
+    })
+})
+bubbleFolder.add(debugParams, 'bubbleIOR', 1, 2).onChange((value) => {
+    bubbleGroup.children.forEach(bubble => {
+        bubble.material.ior = value
+    })
+})
+bubbleFolder.add(debugParams, 'bubbleFloatSpeed', 0, 3).onChange((value) => {
+    bubbleGroup.children.forEach(bubble => {
+        bubble.userData.floatSpeed = value * (0.5 + Math.random() * 1)
+    })
+})
+
+// Particle Systems Controls
+const particlesFolder = gui.addFolder('Particle Systems')
+particlesFolder.add(debugParams, 'showConfettiGroup').onChange((value) => {
+    confettiGroup.visible = value
+})
+particlesFolder.add(debugParams, 'confettiSize', 0.01, 0.5).onChange((value) => {
+    confetti.material.size = value
+})
+particlesFolder.add(debugParams, 'confettiOpacity', 0, 1).onChange((value) => {
+    confetti.material.opacity = value
+})
+particlesFolder.add(debugParams, 'showExplosionGroup').onChange((value) => {
+    explosionGroup.visible = value
+})
+particlesFolder.add(debugParams, 'explosionSize', 0.01, 0.5).onChange((value) => {
+    explosionParticles.material.size = value
+})
+particlesFolder.add(debugParams, 'explosionOpacity', 0, 1).onChange((value) => {
+    explosionParticles.material.opacity = value
+})
+
+// Wire Objects Controls
+const wireFolder = gui.addFolder('Wire Objects')
+wireFolder.add(debugParams, 'showWireGroup').onChange((value) => {
+    wireGroup.visible = value
+})
+wireFolder.add(debugParams, 'wireOpacity', 0, 1).onChange((value) => {
+    wireGroup.children.forEach(wireObj => {
+        wireObj.material.opacity = value
+    })
+})
+wireFolder.add(debugParams, 'wireFloatSpeed', 0, 3).onChange((value) => {
+    wireGroup.children.forEach(wireObj => {
+        wireObj.userData.floatSpeed = value * (0.5 + Math.random() * 0.5)
+    })
+})
+wireFolder.add(debugParams, 'wireRotationSpeed', 0, 3).onChange((value) => {
+    wireGroup.children.forEach(wireObj => {
+        wireObj.userData.rotationSpeed = value * (0.1 + Math.random() * 0.2)
+    })
+})
+
+// Energy Orbs Controls
+const energyFolder = gui.addFolder('Energy Orbs')
+energyFolder.add(debugParams, 'showEnergyGroup').onChange((value) => {
+    energyGroup.visible = value
+})
+energyFolder.add(debugParams, 'energyOrbOpacity', 0, 1).onChange((value) => {
+    energyGroup.children.forEach(orb => {
+        orb.material.opacity = value
+    })
+})
+energyFolder.add(debugParams, 'energyOrbSpeed', 0, 3).onChange((value) => {
+    energyGroup.children.forEach(orb => {
+        orb.userData.speed = value * (0.5 + Math.random() * 0.5)
+    })
+})
+
+// Lasers Controls
+const laserFolder = gui.addFolder('Lasers')
+laserFolder.add(debugParams, 'showLaserGroup').onChange((value) => {
+    laserGroup.visible = value
+})
+laserFolder.add(debugParams, 'laserOpacity', 0, 1).onChange((value) => {
+    laserGroup.children.forEach(laser => {
+        laser.material.opacity = value
+    })
+})
+laserFolder.add(debugParams, 'laserRotationSpeed', 0, 3).onChange((value) => {
+    laserGroup.children.forEach(laser => {
+        laser.userData.rotationSpeed = value * (0.3 + Math.random() * 0.2)
+    })
+})
+
+// Crystals Controls
+const crystalFolder = gui.addFolder('Crystals')
+crystalFolder.add(debugParams, 'showCrystalGroup').onChange((value) => {
+    crystalGroup.visible = value
+})
+crystalFolder.add(debugParams, 'crystalOpacity', 0, 1).onChange((value) => {
+    crystalGroup.children.forEach(crystal => {
+        crystal.material.opacity = value
+    })
+})
+crystalFolder.add(debugParams, 'crystalTransmission', 0, 1).onChange((value) => {
+    crystalGroup.children.forEach(crystal => {
+        crystal.material.transmission = value
+    })
+})
+crystalFolder.add(debugParams, 'crystalMetalness', 0, 1).onChange((value) => {
+    crystalGroup.children.forEach(crystal => {
+        crystal.material.metalness = value
+    })
+})
+crystalFolder.add(debugParams, 'crystalRoughness', 0, 1).onChange((value) => {
+    crystalGroup.children.forEach(crystal => {
+        crystal.material.roughness = value
+    })
+})
+
+// Trail Controls
+const trailFolder = gui.addFolder('Trail')
+trailFolder.add(debugParams, 'showTrailGroup').onChange((value) => {
+    trailGroup.visible = value
+})
+
+// Lights Controls
+const lightsFolder = gui.addFolder('Lights')
+lightsFolder.add(debugParams, 'ambientLightIntensity', 0, 2).onChange((value) => {
+    ambientLight.intensity = value
+})
+lightsFolder.add(debugParams, 'directionalLightIntensity', 0, 3).onChange((value) => {
+    directionalLight.intensity = value
+})
+lightsFolder.add(debugParams, 'pointLight1Intensity', 0, 3).onChange((value) => {
+    pointLight1.intensity = value
+})
+lightsFolder.add(debugParams, 'pointLight2Intensity', 0, 3).onChange((value) => {
+    pointLight2.intensity = value
+})
+lightsFolder.add(debugParams, 'pointLight3Intensity', 0, 3).onChange((value) => {
+    pointLight3.intensity = value
+})
+lightsFolder.add(debugParams, 'diamondLight1Intensity', 0, 3).onChange((value) => {
+    diamondLight1.intensity = value
+})
+lightsFolder.add(debugParams, 'diamondLight2Intensity', 0, 3).onChange((value) => {
+    diamondLight2.intensity = value
+})
+
+// Camera Controls
+const cameraFolder = gui.addFolder('Camera')
+cameraFolder.add(debugParams, 'cameraPositionX', -20, 20).onChange((value) => {
+    camera.position.x = value
+})
+cameraFolder.add(debugParams, 'cameraPositionY', -20, 20).onChange((value) => {
+    camera.position.y = value
+})
+cameraFolder.add(debugParams, 'cameraPositionZ', 1, 20).onChange((value) => {
+    camera.position.z = value
+})
+cameraFolder.add(debugParams, 'cameraFOV', 10, 120).onChange((value) => {
+    camera.fov = value
+    camera.updateProjectionMatrix()
+})
+
+// Renderer Controls
+const rendererFolder = gui.addFolder('Renderer')
+rendererFolder.add(debugParams, 'pixelRatio', 0.5, 3).onChange((value) => {
+    renderer.setPixelRatio(Math.min(value, window.devicePixelRatio))
+})
+rendererFolder.add(debugParams, 'antialias').onChange((value) => {
+    // Note: antialias can't be changed after renderer creation
+    console.log('Antialias setting requires renderer recreation')
+})
+
+// Preset buttons
+const presetsFolder = gui.addFolder('Presets')
+presetsFolder.add({
+    resetToDefaults: () => {
+        gui.reset()
+        camera.position.set(0, 0, 6)
+        camera.fov = 75
+        camera.updateProjectionMatrix()
+    }
+}, 'resetToDefaults').name('Reset to Defaults')
+
+presetsFolder.add({
+    diamondFocus: () => {
+        camera.position.set(0, 0, 3)
+        camera.lookAt(0, 0, 0)
+    }
+}, 'diamondFocus').name('Focus on Diamond')
+
+presetsFolder.add({
+    wideView: () => {
+        camera.position.set(0, 0, 15)
+        camera.fov = 90
+        camera.updateProjectionMatrix()
+    }
+}, 'wideView').name('Wide View')
+
+presetsFolder.add({
+    topView: () => {
+        camera.position.set(0, 10, 0)
+        camera.lookAt(0, 0, 0)
+    }
+}, 'topView').name('Top View')
+
+// Performance Controls
+const performanceFolder = gui.addFolder('Performance')
+performanceFolder.add(debugParams, 'showFPS').onChange((value) => {
+    if (value) {
+        showFPS()
+    } else {
+        hideFPS()
+    }
+})
+
+// FPS Counter
+let fpsElement = null
+let frameCount = 0
+let lastTime = performance.now()
+
+function showFPS() {
+    if (!fpsElement) {
+        fpsElement = document.createElement('div')
+        fpsElement.style.position = 'fixed'
+        fpsElement.style.top = '10px'
+        fpsElement.style.left = '10px'
+        fpsElement.style.color = '#00ff88'
+        fpsElement.style.fontSize = '16px'
+        fpsElement.style.fontWeight = 'bold'
+        fpsElement.style.fontFamily = 'monospace'
+        fpsElement.style.background = 'rgba(0, 0, 0, 0.7)'
+        fpsElement.style.padding = '5px 10px'
+        fpsElement.style.borderRadius = '5px'
+        fpsElement.style.zIndex = '1000'
+        document.body.appendChild(fpsElement)
+    }
+    fpsElement.style.display = 'block'
+}
+
+function hideFPS() {
+    if (fpsElement) {
+        fpsElement.style.display = 'none'
+    }
+}
+
+function updateFPS() {
+    if (debugParams.showFPS && fpsElement) {
+        frameCount++
+        const currentTime = performance.now()
+        if (currentTime >= lastTime + 1000) {
+            const fps = Math.round((frameCount * 1000) / (currentTime - lastTime))
+            fpsElement.textContent = `FPS: ${fps}`
+            frameCount = 0
+            lastTime = currentTime
+        }
+    }
+}
+
 const clock = new THREE.Clock()
 
 const tick = () => {
-    const elapsedTime = clock.getElapsedTime()
+    const elapsedTime = clock.getElapsedTime() * debugParams.animationSpeed
 
-    diamondGroup.rotation.y = elapsedTime * 0.2
+    diamondGroup.rotation.y = elapsedTime * debugParams.diamondRotationSpeed
     diamondGroup.rotation.x = Math.sin(elapsedTime * 0.3) * 0.1
     
     mainDiamond.rotation.y = elapsedTime * 0.5
@@ -514,9 +953,9 @@ const tick = () => {
         bubble.position.x += Math.cos(elapsedTime * bubble.userData.floatSpeed * 0.7 + index) * 0.005
         bubble.position.z += Math.sin(elapsedTime * bubble.userData.floatSpeed * 0.5 + index) * 0.005
         
-        bubble.rotation.x += bubble.userData.rotationSpeed
-        bubble.rotation.y += bubble.userData.rotationSpeed * 0.7
-        bubble.rotation.z += bubble.userData.rotationSpeed * 0.3
+        bubble.rotation.x += bubble.userData.rotationSpeed * debugParams.animationSpeed
+        bubble.rotation.y += bubble.userData.rotationSpeed * 0.7 * debugParams.animationSpeed
+        bubble.rotation.z += bubble.userData.rotationSpeed * 0.3 * debugParams.animationSpeed
         
         const pulse = 1 + Math.sin(elapsedTime * 1.5 + index) * 0.1
         bubble.scale.setScalar(pulse)
@@ -580,8 +1019,8 @@ const tick = () => {
         orb.position.z = Math.sin(angle) * radius
         orb.position.y = Math.sin(elapsedTime * 0.8 + index) * orb.userData.amplitude
         
-        orb.rotation.x = elapsedTime * 0.5
-        orb.rotation.y = elapsedTime * 0.3
+        orb.rotation.x = elapsedTime * 0.5 * debugParams.animationSpeed
+        orb.rotation.y = elapsedTime * 0.3 * debugParams.animationSpeed
         
         const pulse = 1 + Math.sin(elapsedTime * 2 + index) * 0.3
         orb.scale.setScalar(pulse)
@@ -591,7 +1030,7 @@ const tick = () => {
         laser.rotation.y = elapsedTime * laser.userData.rotationSpeed
         laser.rotation.x = Math.sin(elapsedTime * 0.5 + index) * 0.2
         
-        laser.material.opacity = 0.6 + Math.sin(elapsedTime * 3 + index) * 0.3
+        laser.material.opacity = debugParams.laserOpacity + Math.sin(elapsedTime * 3 + index) * 0.3
     })
     
     trailGroup.rotation.y = elapsedTime * 0.2
@@ -621,6 +1060,7 @@ const tick = () => {
 
     controls.update()
     renderer.render(scene, camera)
+    updateFPS()
     window.requestAnimationFrame(tick)
 }
 

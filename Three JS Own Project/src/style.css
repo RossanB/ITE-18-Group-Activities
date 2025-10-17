@@ -19,3 +19,65 @@ canvas {
   display: block;
   outline: none;
 }
+
+/* Debug UI Styling */
+.lil-gui {
+  --background-color: rgba(0, 0, 0, 0.8);
+  --text-color: #ffffff;
+  --title-background-color: rgba(255, 255, 255, 0.1);
+  --title-text-color: #ffffff;
+  --widget-color: rgba(255, 255, 255, 0.1);
+  --hover-color: rgba(255, 255, 255, 0.2);
+  --focus-color: rgba(0, 150, 255, 0.5);
+  --number-color: #00ff88;
+  --string-color: #ffaa00;
+}
+
+.lil-gui .title {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: bold;
+}
+
+.lil-gui .controller {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lil-gui .controller:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.lil-gui .folder {
+  border-left: 3px solid rgba(102, 126, 234, 0.5);
+}
+
+.lil-gui .folder .title {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Debug UI Toggle Button */
+.debug-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.debug-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.debug-toggle:active {
+  transform: translateY(0);
+}
